@@ -93,7 +93,8 @@ int main(void)
   while (1)
   {
   /* USER CODE END WHILE */
-
+	  printf("Hello, world\n");
+	  HAL_Delay(100);
   /* USER CODE BEGIN 3 */
 
   }
