@@ -17,16 +17,19 @@ int _write(int file, char *ptr, int len);
 
 void _exit(int status)
 {
+	UNUSED(status);
     while (1);
 }
 
 int _close(int file)
 {
+	UNUSED(file);
     return -1;
 }
 
 int _execve(char *name, char **argv, char **env)
 {
+	UNUSED(name); UNUSED(argv); UNUSED(env);
     errno = ENOMEM;
     return -1;
 }
@@ -39,6 +42,7 @@ int _fork()
 
 int _fstat(int file, struct stat *st)
 {
+	UNUSED(file);
     st->st_mode = S_IFCHR;
     return 0;
 }
@@ -72,18 +76,21 @@ int _isatty(int file)
 
 int _kill(int pid, int sig)
 {
+	UNUSED(pid); UNUSED(sig);
     errno = EINVAL;
     return (-1);
 }
 
 int _link(char *old, char *new)
 {
+	UNUSED(old); UNUSED(new);
     errno = EMLINK;
     return -1;
 }
 
 int _lseek(int file, int ptr, int dir)
 {
+	UNUSED(file); UNUSED(ptr); UNUSED(dir);
     return 0;
 }
 
@@ -155,12 +162,11 @@ caddr_t _sbrk(int incr)
 
 int _read(int file, char *ptr, int len)
 {
+	UNUSED(ptr); UNUSED(len);
     switch (file)
     {
     case STDIN_FILENO:
-    	//CDC_Receive_FS(ptr, len);
-        //HAL_UART_Receive(&UART_Handle, (uint8_t *)ptr, 1, HAL_MAX_DELAY);
-        //return 1;
+        HAL_UART_Receive(&huart1, (uint8_t *)ptr, 1, HAL_MAX_DELAY);
     default:
         errno = EBADF;
         return -1;
@@ -169,23 +175,27 @@ int _read(int file, char *ptr, int len)
 
 int _stat(const char *filepath, struct stat *st)
 {
+	UNUSED(filepath);
     st->st_mode = S_IFCHR;
     return 0;
 }
 
 clock_t _times(struct tms *buf)
 {
+	UNUSED(buf);
     return -1;
 }
 
 int _unlink(char *name)
 {
+	UNUSED(name);
     errno = ENOENT;
     return -1;
 }
 
 int _wait(int *status)
 {
+	UNUSED(status);
     errno = ECHILD;
     return -1;
 }
@@ -194,10 +204,10 @@ int _write(int file, char *ptr, int len)
 {
     switch (file)
     {
-    case STDOUT_FILENO: /*stdout*/
+    case STDOUT_FILENO: // stdout
         HAL_UART_Transmit(&huart1, (uint8_t*)ptr, len, HAL_MAX_DELAY);
         break;
-    case STDERR_FILENO: /* stderr */
+    case STDERR_FILENO: // stderr
         HAL_UART_Transmit(&huart1, (uint8_t*)ptr, len, HAL_MAX_DELAY);
         break;
     default:

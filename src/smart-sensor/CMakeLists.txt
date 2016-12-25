@@ -45,8 +45,8 @@ set(CMAKE_CXX_COMPILER_WORKS 1)
 SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
 SET(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
 
-set(CMAKE_C_CXX_FLAGS "-mcpu=cortex-m0 -mthumb -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -ffreestanding -Wall -Wextra -g3")
-set(CMAKE_C_CXX_FLAGS_DEBUG   "-fno-move-loop-invariants -g -DDEBUG -Os")
+set(CMAKE_C_CXX_FLAGS "-mcpu=cortex-m0 -mthumb -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -ffreestanding -flto  -Wall -Wextra")
+set(CMAKE_C_CXX_FLAGS_DEBUG   "-fno-move-loop-invariants -DDEBUG -Os")
 set(CMAKE_C_CXX_FLAGS_RELEASE "-Os")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_CXX_FLAGS} -std=gnu11")
@@ -62,13 +62,12 @@ set(CMAKE_ASM_FLAGS_DEBUG   "${CMAKE_C_FLAGS_DEBUG}" )
 set(CMAKE_ASM_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}" )
 
 add_definitions(-DSTM32F030x6)
-#add_definitions(-DSTM32F1)
-#add_definitions(-DSTM32F10X_HD)
+#add_definitions(-DUSE_FULL_ASSERT)
 
 set(LDSCRIPTS "-T STM32F030F4Px_FLASH.ld")
 set(LDSCRIPTS_DIR "${PROJECT_SOURCE_DIR}")
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LDSCRIPTS} -Xlinker --gc-sections -L${LDSCRIPTS_DIR} -Wl,-Map,\"${MAP_NAME}\" --specs=nano.specs")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LDSCRIPTS} -Os -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -ffreestanding -flto -Xlinker --gc-sections -L${LDSCRIPTS_DIR} -Wl,-Map,\"${MAP_NAME}\" --specs=nano.specs")
 #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostartfiles")
 
 add_executable(${ELF_NAME} ${EXE_SOURCES})
