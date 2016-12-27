@@ -20,10 +20,12 @@ typedef enum {
 	RS_WAITING_SPACE,
 } Receiver_State;
 
+// private functions prototypes
 static uint32_t ticks_to_us(uint16_t ticks_interval);
 static void reset_receiver(void);
 static void add_bit(uint8_t bit);
 
+// private variables
 static IR_Data_Buffer temporary_buffer;
 static IR_Data_Buffer user_buffer;
 

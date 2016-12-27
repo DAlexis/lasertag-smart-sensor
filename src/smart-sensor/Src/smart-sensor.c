@@ -13,7 +13,7 @@
 
 void smart_sensor_init(void)
 {
-	ir_receiver_init();
+	ssp_init();
 }
 
 void smart_sensor_main_loop(void)

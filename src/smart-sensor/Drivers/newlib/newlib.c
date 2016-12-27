@@ -15,6 +15,8 @@ char **environ = __env;
 
 int _write(int file, char *ptr, int len);
 
+void write_to_uart(char *ptr, int len);
+
 void _exit(int status)
 {
 	UNUSED(status);
@@ -205,14 +207,19 @@ int _write(int file, char *ptr, int len)
     switch (file)
     {
     case STDOUT_FILENO: // stdout
-        HAL_UART_Transmit(&huart1, (uint8_t*)ptr, len, HAL_MAX_DELAY);
+    	write_to_uart(ptr, len);
         break;
     case STDERR_FILENO: // stderr
-        HAL_UART_Transmit(&huart1, (uint8_t*)ptr, len, HAL_MAX_DELAY);
+    	write_to_uart(ptr, len);
         break;
     default:
         errno = EBADF;
         return -1;
     }
     return len;
+}
+
+__weak void write_to_uart(char *ptr, int len)
+{
+	HAL_UART_Transmit(&huart1, (uint8_t*)ptr, len, HAL_MAX_DELAY);
 }
