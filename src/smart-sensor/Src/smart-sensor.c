@@ -8,6 +8,7 @@
 #include "smart-sensor.h"
 #include "ir-receiver.h"
 #include "stm32f0xx_hal.h"
+#include "ssp-sensor-part.h"
 
 #include <math.h>
 

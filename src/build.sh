@@ -7,7 +7,7 @@ echo "Usage: ./build.sh <debug|release>. Debug is default"
 cfg="Debug"
 build_dir_prefix="./build"
 build_dir=$build_dir_prefix"/debug"
-source_dir_from_build_dir="../../smart-sensor"
+source_dir_from_build_dir="../../"
 
 if [ "$1" == "release" ];
 then

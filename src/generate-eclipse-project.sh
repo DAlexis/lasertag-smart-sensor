@@ -5,7 +5,7 @@ set -e
 echo "Usage: ./generate-eclipse-project.sh <debug|release>. Debug is default"
 
 workspace="eclipse-workspace"
-project="smart-sensor"
+project="smart-sensor-project"
 dir=$workspace/$project
 
 mkdir -p $dir
@@ -19,7 +19,7 @@ fi
 
 (
 cd $dir
-cmake -G"Eclipse CDT4 - Unix Makefiles" -D CMAKE_BUILD_TYPE=Debug ../../smart-sensor
+cmake -G"Eclipse CDT4 - Unix Makefiles" -D CMAKE_BUILD_TYPE=Debug ../../
 
 # Patching definitions for C++11 support
 sed -i s/199711L/201103L/ .cproject
