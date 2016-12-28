@@ -8,6 +8,9 @@ find_package(Threads)
 set(EXE_SOURCES
     main.cpp
     serial-port.cpp
+    ssp-master.cpp
+    signal-handler.cpp
+    main-loop.cpp
 )
 
 include_directories(

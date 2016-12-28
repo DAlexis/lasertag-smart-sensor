@@ -8,11 +8,13 @@
 #ifndef MASTER_PC_SERIAL_PORT_HPP_
 #define MASTER_PC_SERIAL_PORT_HPP_
 
+#include "signal-handler.hpp"
+
 #include <boost/asio.hpp>
 #include <vector>
 #include <string>
 
-class SerialPort
+class SerialPort : public IStoppableObject
 {
 public:
 	using ReadDoneCallback = std::function<void(const std::vector<uint8_t>& buffer)>;
@@ -24,6 +26,7 @@ public:
     std::vector<uint8_t> readLine(char stopChar);
     std::string readLineStr(char stopChar);
 
+    void stop() override;
 private:
     void asyncReadNextByte();
     void byteReadedCallback(

@@ -6,6 +6,7 @@ SerialPort::SerialPort(boost::asio::io_service& io, std::string port, unsigned i
 	m_io(io), m_serial(io,port)
 {
 	m_serial.set_option(boost::asio::serial_port_base::baud_rate(baud_rate));
+	SignalHandler::instance().addStoppable(this);
 }
 
 
@@ -44,6 +45,11 @@ std::string SerialPort::readLineStr(char stopChar)
 	return str;
 }
 
+void SerialPort::stop()
+{
+	m_serial.cancel();
+}
+
 void SerialPort::asyncReadNextByte()
 {
 	m_serial.async_read_some(
@@ -63,12 +69,11 @@ void SerialPort::byteReadedCallback(
 		std::size_t bytes_transferred
 )
 {
-	//cout << m_nextChar << endl;
+	m_readBuffer.push_back(m_nextChar);
 	if (m_nextChar == m_stopChar)
 	{
 		m_rxCallback(m_readBuffer);
 	} else {
-		m_readBuffer.push_back(m_nextChar);
 		asyncReadNextByte();
 	}
 }

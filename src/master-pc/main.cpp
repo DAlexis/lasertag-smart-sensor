@@ -1,4 +1,7 @@
 #include "serial-port.hpp"
+#include "ssp-master.hpp"
+#include "signal-handler.hpp"
+#include "main-loop.hpp"
 
 #include <boost/program_options.hpp>
 #include <boost/asio/signal_set.hpp>
@@ -10,37 +13,9 @@ using namespace std;
 
 boost::asio::io_service io;
 
-bool needStopSystem = false;
-
-void signalHandler(const boost::system::error_code& error, int signal_number)
-{
-	if (signal_number == SIGINT)
-	{
-		cout << " User interrupt by Ctrl+C" << endl;
-		needStopSystem = true;
-		return;
-	}
-	if (signal_number == SIGINT)
-	{
-		cout << " Program terminated" << endl;
-		needStopSystem = true;
-		return;
-	}
-}
-
-
-void incomingSerialHandler(const boost::system::error_code& error, std::size_t bytes_transferred)
-{
-	cout << "Incoming data " << endl;
-}
-
 int main(int argc, char** argv)
 {
-	// Construct a signal set registered for process termination.
-	boost::asio::signal_set signals(io, SIGINT, SIGTERM);
-
-	// Start an asynchronous wait for one of the signals to occur.
-	signals.async_wait(signalHandler);
+	SignalHandler::instance().init(io);
 
     namespace po = boost::program_options;
     po::options_description generalOptions("Genral options");
@@ -79,13 +54,12 @@ int main(int argc, char** argv)
 			vmOptions["baudrate"].as<unsigned int>()
     );
 
-    serial.asyncReadLine('<', [](const std::vector<uint8_t>& buffer) {
-    	std::string str(buffer.begin(), buffer.end());
-    	cout << str << endl;
-    });
-    while (!needStopSystem)
-    {
-    	io.run();
-    }
+
+    SSPMaster sspMaster(serial);
+    sspMaster.startAsyncReading();
+
+    MainLoop ml(io);
+    ml.mainLoop();
+
     return 0;
 }
