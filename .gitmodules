@@ -1,0 +1,3 @@
+[submodule "src/smart-sensor/lasertag-ssp"]
+	path = src/smart-sensor/lasertag-ssp
+	url = https://github.com/DAlexis/lasertag-ssp.git

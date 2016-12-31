@@ -15,6 +15,11 @@ void SerialPort::writeString(std::string s)
 	boost::asio::write(m_serial,boost::asio::buffer(s.c_str(),s.size()));
 }
 
+void SerialPort::write(uint8_t* data, size_t size)
+{
+	boost::asio::write(m_serial,boost::asio::buffer(data, size));
+}
+
 void SerialPort::asyncReadLine(char stopChar, ReadDoneCallback callback)
 {
 	m_rxCallback = callback;

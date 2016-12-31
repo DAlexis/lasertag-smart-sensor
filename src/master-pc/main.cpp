@@ -6,6 +6,7 @@
 #include <boost/program_options.hpp>
 #include <boost/asio/signal_set.hpp>
 #include <boost/asio.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <iostream>
 #include <cstdlib>
 
@@ -54,12 +55,12 @@ int main(int argc, char** argv)
 			vmOptions["baudrate"].as<unsigned int>()
     );
 
-
-    SSPMaster sspMaster(serial);
+    SSPMaster sspMaster(io, serial);
     sspMaster.startAsyncReading();
 
+    sspMaster.requestIRDataCycle(1000);
     MainLoop ml(io);
     ml.mainLoop();
 
-    return 0;
+    return EXIT_SUCCESS;
 }

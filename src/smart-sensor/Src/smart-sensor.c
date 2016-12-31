@@ -14,7 +14,7 @@
 
 void smart_sensor_init(void)
 {
-	ssp_init();
+	ssp_sensor_init();
 }
 
 void smart_sensor_main_loop(void)
@@ -23,6 +23,8 @@ void smart_sensor_main_loop(void)
 	for (;;)
 	{
 		ir_task_tick();
+		//transiver_task_tick();
+		ssp_sensor_task_tick();
 		if (ir_is_data_ready())
 		{
 			IR_Data_Buffer* data = ir_get_data();

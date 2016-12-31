@@ -21,6 +21,7 @@ include_directories(
     Drivers/CMSIS/Device/ST/STM32F0xx/Include
     Drivers/STM32F0xx_HAL_Driver/Inc
     Inc
+    lasertag-ssp/ssp/Inc
 )
 
 set(ELF_NAME ${PROJECT_NAME}.elf)
