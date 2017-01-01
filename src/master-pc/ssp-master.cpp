@@ -15,9 +15,11 @@ SSPMaster::SSPMaster(boost::asio::io_service& io, SerialPort& serial) :
 
 void SSPMaster::startAsyncReading()
 {
-	m_serial.asyncReadLine('<', [this](const std::vector<uint8_t>& buffer) {
-		messageCallback(buffer);
-    });
+	m_serial.asyncRead([this](
+			const std::vector<uint8_t>& buffer) {	messageCallback(buffer); },
+			10
+	);
+
 }
 
 void SSPMaster::requestIRData()
@@ -48,26 +50,28 @@ void SSPMaster::sendCommand(Sensor_Command command)
 
 void SSPMaster::messageCallback(const std::vector<uint8_t>& buffer)
 {
-	string str(buffer.begin(), buffer.end());
-	cout << "==========" << endl;
-	cout << "Bus message: " << str << endl;
-	switch (buffer[0])
+	if (!buffer.empty())
 	{
-	case SSP_START_BYTE_M2S:
-		cout << "Message type: master to slave" << endl;
-		break;
-	case SSP_START_BYTE_DEBUG:
-		cout << "Message type: debug" << endl;
-		break;
-	case SSP_START_BYTE_S2M:
-		cout << "Message type: slave to master" << endl;
-		parseSlaveToMaster(buffer);
-		break;
+		string str(buffer.begin(), buffer.end());
+		cout << "==========" << endl;
+		cout << "Bus message: " << str << endl;
+		switch (buffer[0])
+		{
+		case SSP_START_BYTE_M2S:
+			cout << "Message type: master to slave" << endl;
+			break;
+		case SSP_START_BYTE_DEBUG:
+			cout << "Message type: debug" << endl;
+			break;
+		case SSP_START_BYTE_S2M:
+			cout << "Message type: slave to master" << endl;
+			parseSlaveToMaster(buffer);
+			break;
+		}
+		cout << "==========" << endl;
 	}
 
-
 	startAsyncReading();
-	cout << "==========" << endl;
 }
 
 void SSPMaster::parseSlaveToMaster(const std::vector<uint8_t>& buffer)

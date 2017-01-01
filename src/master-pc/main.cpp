@@ -58,7 +58,7 @@ int main(int argc, char** argv)
     SSPMaster sspMaster(io, serial);
     sspMaster.startAsyncReading();
 
-    sspMaster.requestIRDataCycle(1000);
+    //sspMaster.requestIRDataCycle(1000);
     MainLoop ml(io);
     ml.mainLoop();
 

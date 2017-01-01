@@ -22,21 +22,22 @@ public:
     void writeString(std::string s);
     void write(uint8_t* data, size_t size);
 
-    void asyncReadLine(char stopChar, ReadDoneCallback callback);
-
-    std::vector<uint8_t> readLine(char stopChar);
-    std::string readLineStr(char stopChar);
+    //void asyncReadLine(char stopChar, ReadDoneCallback callback);
+    void asyncRead(ReadDoneCallback callback, size_t timeout);
 
     void stop() override;
 private:
-    void asyncReadNextByte();
+    void asyncReadNextByte(bool needTimeout = true);
     void byteReadedCallback(
     		const boost::system::error_code& error,
     		std::size_t bytes_transferred
     );
+
     boost::asio::io_service& m_io;
+    boost::asio::deadline_timer m_timeoutTimer;
     boost::asio::serial_port m_serial;
     std::vector<uint8_t> m_readBuffer;
+    unsigned int m_timeout = 100;
     uint8_t m_nextChar = 0;
     uint8_t m_stopChar = 0;
     ReadDoneCallback m_rxCallback;

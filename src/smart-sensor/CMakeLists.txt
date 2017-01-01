@@ -8,6 +8,10 @@ FILE(GLOB_RECURSE CPP_SOURCES *.cpp)
 FILE(GLOB_RECURSE H_HEADERS *.h)
 FILE(GLOB_RECURSE HPP_HEADERS *.hpp)
 
+list(REMOVE_ITEM C_SOURCES "${PROJECT_SOURCE_DIR}/lasertag-ssp/ssp/src/ssp-master-part.c")
+#list(REMOVE_ITEM C_SOURCES "${PROJECT_SOURCE_DIR}/lasertag-ssp/ssp/src/ssp-sensor-part.c")
+
+
 set(EXE_SOURCES
     ${ASM_SOURCES}
     ${C_SOURCES}

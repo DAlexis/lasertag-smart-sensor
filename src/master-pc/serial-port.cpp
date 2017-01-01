@@ -3,7 +3,7 @@
 using namespace std;
 
 SerialPort::SerialPort(boost::asio::io_service& io, std::string port, unsigned int baud_rate) :
-	m_io(io), m_serial(io,port)
+	m_io(io), m_timeoutTimer(m_io), m_serial(io,port)
 {
 	m_serial.set_option(boost::asio::serial_port_base::baud_rate(baud_rate));
 	SignalHandler::instance().addStoppable(this);
@@ -20,42 +20,21 @@ void SerialPort::write(uint8_t* data, size_t size)
 	boost::asio::write(m_serial,boost::asio::buffer(data, size));
 }
 
-void SerialPort::asyncReadLine(char stopChar, ReadDoneCallback callback)
+void SerialPort::asyncRead(ReadDoneCallback callback, size_t timeout)
 {
+	m_timeout = timeout;
 	m_rxCallback = callback;
-	m_stopChar = stopChar;
 	m_readBuffer.clear();
 	asyncReadNextByte();
-}
-
-std::vector<uint8_t> SerialPort::readLine(char stopChar)
-{
-	//Reading data char by char, code is optimized for simplicity, not speed
-	using namespace boost;
-	std::vector<uint8_t> result;
-	uint8_t c;
-	do
-	{
-		asio::read(m_serial,asio::buffer(&c,1));
-		result.push_back(c);
-	}
-	while(c != stopChar);
-	return result;
-}
-
-std::string SerialPort::readLineStr(char stopChar)
-{
-	std::vector<uint8_t> v = readLine(stopChar);
-	std::string str(v.begin(), v.end());
-	return str;
 }
 
 void SerialPort::stop()
 {
 	m_serial.cancel();
+	m_timeoutTimer.cancel();
 }
 
-void SerialPort::asyncReadNextByte()
+void SerialPort::asyncReadNextByte(bool needTimeout)
 {
 	m_serial.async_read_some(
 		boost::asio::buffer(&m_nextChar, 1),
@@ -67,6 +46,21 @@ void SerialPort::asyncReadNextByte()
 			byteReadedCallback(error, bytes_transferred);
 		}
 	);
+	m_timeoutTimer.cancel();
+	if (needTimeout)
+	{
+		m_timeoutTimer.expires_from_now(boost::posix_time::milliseconds(m_timeout));
+		m_timeoutTimer.async_wait(
+			[this](const boost::system::error_code& err)
+			{
+				if (err == boost::asio::error::operation_aborted)
+					return;
+
+				m_serial.cancel();
+				m_rxCallback(m_readBuffer);
+			}
+		);
+	}
 }
 
 void SerialPort::byteReadedCallback(
@@ -74,11 +68,9 @@ void SerialPort::byteReadedCallback(
 		std::size_t bytes_transferred
 )
 {
+	if (bytes_transferred == 0)
+		return;
+	m_timeoutTimer.cancel();
 	m_readBuffer.push_back(m_nextChar);
-	if (m_nextChar == m_stopChar)
-	{
-		m_rxCallback(m_readBuffer);
-	} else {
-		asyncReadNextByte();
-	}
+	asyncReadNextByte();
 }
