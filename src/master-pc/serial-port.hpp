@@ -18,12 +18,14 @@ class SerialPort : public IStoppableObject
 {
 public:
 	using ReadDoneCallback = std::function<void(const std::vector<uint8_t>& buffer)>;
+	using ReadByteDoneCallback = std::function<void(uint8_t)>;
     SerialPort(boost::asio::io_service& io, std::string port, unsigned int baud_rate);
     void writeString(std::string s);
     void write(uint8_t* data, size_t size);
 
     //void asyncReadLine(char stopChar, ReadDoneCallback callback);
     void asyncRead(ReadDoneCallback callback, size_t timeout);
+    void asyncReadPerByte(ReadByteDoneCallback callback);
 
     void stop() override;
 private:
@@ -40,7 +42,7 @@ private:
     unsigned int m_timeout = 100;
     uint8_t m_nextChar = 0;
     uint8_t m_stopChar = 0;
-    ReadDoneCallback m_rxCallback;
+    ReadDoneCallback m_rxCallback = nullptr;
 };
 
 

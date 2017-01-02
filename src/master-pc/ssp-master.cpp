@@ -1,27 +1,73 @@
 #include "ssp-master.hpp"
+#include "../smart-sensor/lasertag-ssp/ssp/Inc/ssp-driver.h"
+#include "../smart-sensor/lasertag-ssp/ssp/Inc/ssp-master-part.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/shared_array.hpp>
+
 #include <iostream>
 #include <iomanip>
 #include <string>
 
 using namespace std;
 
+SSPMaster* SSPMaster::sspMasterActive = nullptr;
+
 SSPMaster::SSPMaster(boost::asio::io_service& io, SerialPort& serial) :
-	m_timer(io),
-	m_serial(serial)
+		m_serial(serial),
+		m_timer(io),
+		m_timerTick(io)
 {
 
 }
 
-
-void SSPMaster::startAsyncReading()
+void SSPMaster::connectToCDriver()
 {
+	sspMasterActive = this;
+}
+
+void SSPMaster::start()
+{
+	//m_serial.asyncReadPerByte([](uint8_t byte){ ssp_receive_byte(byte); });
+	setupTickTimer();
+
 	m_serial.asyncRead([this](
 			const std::vector<uint8_t>& buffer) {	messageCallback(buffer); },
 			10
 	);
-
 }
 
+void SSPMaster::messageCallback(const std::vector<uint8_t>& buffer)
+{
+	if (!buffer.empty())
+	{
+		string str(buffer.begin(), buffer.end());
+		cout << "==========" << endl;
+		cout << "Bus message: " << str << endl;
+		cout << "==========" << endl;
+		for (auto it : buffer)
+		{
+			ssp_receive_byte(it);
+		}
+	}
+
+	m_serial.asyncRead([this](
+			const std::vector<uint8_t>& buffer) {	messageCallback(buffer); },
+			10
+	);
+}
+
+void SSPMaster::doTick()
+{
+	ssp_master_task_tick();
+	setupTickTimer();
+}
+
+void SSPMaster::setupTickTimer()
+{
+	m_timerTick.expires_from_now(boost::posix_time::milliseconds(10));
+	m_timerTick.async_wait([this](const boost::system::error_code& err){ doTick(); });
+}
+/*
 void SSPMaster::requestIRData()
 {
 	cout << "==========" << endl;
@@ -37,7 +83,12 @@ void SSPMaster::requestIRDataCycle(unsigned int ms)
 	m_timer.expires_from_now(boost::posix_time::milliseconds(ms));
 	m_timer.async_wait([this](const boost::system::error_code& err) { timerReqIRCallback(err); });
 }
-
+*/
+SerialPort& SSPMaster::serial()
+{
+	return m_serial;
+}
+/*
 void SSPMaster::sendCommand(Sensor_Command command)
 {
 	SSP_M2S_Header package;
@@ -107,4 +158,44 @@ void SSPMaster::timerReqIRCallback(const boost::system::error_code& err)
 {
 	requestIRData();
 	requestIRDataCycle(m_irReqPeriod);
+}*/
+
+///////////////////////
+// C driver
+void ssp_drivers_init(void)
+{
+
+}
+
+uint32_t ssp_get_time_ms()
+{
+	static boost::posix_time::ptime startTime = boost::posix_time::second_clock::local_time();
+
+	boost::posix_time::ptime nowTime = boost::posix_time::second_clock::local_time();
+	boost::posix_time::time_duration diff = nowTime - startTime;
+	return diff.total_milliseconds();
+}
+
+
+void ssp_send_data(uint8_t* data, uint16_t size)
+{
+	SSPMaster::sspMasterActive->serial().stop();
+	SSPMaster::sspMasterActive->serial().write(data, size);
+}
+
+uint8_t ssp_is_ir_data_ready(void) { return 0; }
+
+void ssp_get_ir_data(uint8_t** data, uint16_t* size) { }
+
+void ssp_write_debug(uint8_t* data, uint16_t size)
+{
+	std::cout << "Debug channel: ";
+	if (size == 0)
+	{
+		cout << "<empty>";
+	} else {
+		std::string s(data, data+size-1);
+		cout << s;
+	}
+	cout << endl;
 }

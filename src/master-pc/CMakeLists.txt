@@ -11,7 +11,6 @@ set(EXE_SOURCES
     ssp-master.cpp
     signal-handler.cpp
     main-loop.cpp
-    ssp-driver.cpp
 	../smart-sensor/lasertag-ssp/ssp/src/ssp-master-part.c
 	../smart-sensor/lasertag-ssp/ssp/src/ssp-receiver.c
 )

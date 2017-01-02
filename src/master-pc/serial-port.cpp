@@ -28,6 +28,27 @@ void SerialPort::asyncRead(ReadDoneCallback callback, size_t timeout)
 	asyncReadNextByte();
 }
 
+void SerialPort::asyncReadPerByte(ReadByteDoneCallback callback)
+{
+	uint8_t byte = 0;
+	m_serial.cancel();
+	m_serial.async_read_some(
+		boost::asio::buffer(&byte, 1),
+		[this, callback, &byte](
+				const boost::system::error_code& error, // Result of operation.
+				std::size_t bytes_transferred
+		)
+		{
+			cout << byte;
+			if (error == boost::asio::error::operation_aborted)
+				return;
+
+			callback(byte);
+			asyncReadPerByte(callback);
+		}
+	);
+}
+
 void SerialPort::stop()
 {
 	m_serial.cancel();

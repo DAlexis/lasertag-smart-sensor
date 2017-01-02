@@ -16,18 +16,22 @@ class SSPMaster
 public:
 	SSPMaster(boost::asio::io_service& io, SerialPort& serial);
 
-	void startAsyncReading();
-	void requestIRData();
-	void requestIRDataCycle(unsigned int ms);
+	void connectToCDriver();
+	void start();
+	SerialPort& serial();
 
+	static SSPMaster* sspMasterActive;
 private:
-	void sendCommand(Sensor_Command command);
+	void sendCommand(SSP_Command command);
 	void messageCallback(const std::vector<uint8_t>& buffer);
 	void parseSlaveToMaster(const std::vector<uint8_t>& buffer);
 	void timerReqIRCallback(const boost::system::error_code& err);
+	void doTick();
+	void setupTickTimer();
 
 	SerialPort& m_serial;
 	boost::asio::deadline_timer m_timer;
+	boost::asio::deadline_timer m_timerTick;
 	unsigned int m_irReqPeriod = 0; // ms
 
 };
