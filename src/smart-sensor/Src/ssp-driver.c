@@ -25,6 +25,7 @@ void ssp_drivers_init(void)
 {
 	MX_USART1_UART_Init();
 	receive_next_byte_it();
+	ir_receiver_init();
 }
 
 void ssp_send_data(uint8_t* data, uint16_t size)
@@ -55,7 +56,9 @@ uint32_t ssp_get_time_ms()
 
 void write_to_uart(char *ptr, int len)
 {
+#ifdef DEBUG
 	ssp_send_debug_msg(ptr, len);
+#endif
 }
 
 // Interrupt callbacks

@@ -29,11 +29,14 @@ private:
 	void parseSlaveToMaster(const std::vector<uint8_t>& buffer);
 	void timerReqIRCallback(const boost::system::error_code& err);
 	void doTick();
+	void doScanIR();
 	void setupTickTimer();
+	void setupScanIRTimer();
 
 	SerialPort& m_serial;
 	boost::asio::deadline_timer m_timer;
 	boost::asio::deadline_timer m_timerTick;
+	boost::asio::deadline_timer m_timerScanIR;
 	unsigned int m_irReqPeriod = 0; // ms
 
 };

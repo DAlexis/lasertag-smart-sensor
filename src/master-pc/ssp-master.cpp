@@ -15,7 +15,8 @@ SSPMaster* SSPMaster::sspMasterActive = nullptr;
 SSPMaster::SSPMaster(boost::asio::io_service& io, SerialPort& serial) :
 		m_serial(serial),
 		m_timer(io),
-		m_timerTick(io)
+		m_timerTick(io),
+		m_timerScanIR(io)
 {
 
 }
@@ -29,6 +30,7 @@ void SSPMaster::start()
 {
 	//m_serial.asyncReadPerByte([](uint8_t byte){ ssp_receive_byte(byte); });
 	setupTickTimer();
+	setupScanIRTimer();
 	startAsyncRead();
 }
 
@@ -65,10 +67,33 @@ void SSPMaster::doTick()
 	setupTickTimer();
 }
 
+void SSPMaster::doScanIR()
+{
+	SSP_IR_Buffer* ir = ssp_get_next_ir_buffer();
+	if (ir != nullptr)
+	{
+		cout << "IR buffer received" << endl;
+		cout << "Sender: " << ir->sensor_address << endl;
+		cout << "Data: " << ios::hex;
+		for (int i=0; i<ir->size; i++)
+		{
+			cout << ir->data[i];
+		}
+		cout << ios::dec << endl;
+	}
+	setupScanIRTimer();
+}
+
 void SSPMaster::setupTickTimer()
 {
 	m_timerTick.expires_from_now(boost::posix_time::milliseconds(10));
 	m_timerTick.async_wait([this](const boost::system::error_code& err){ doTick(); });
+}
+
+void SSPMaster::setupScanIRTimer()
+{
+	m_timerScanIR.expires_from_now(boost::posix_time::milliseconds(10));
+	m_timerScanIR.async_wait([this](const boost::system::error_code& err){ doScanIR(); });
 }
 
 void SSPMaster::requestIRDataCycle(unsigned int ms)
@@ -151,7 +176,6 @@ void SSPMaster::parseSlaveToMaster(const std::vector<uint8_t>& buffer)
 
 void SSPMaster::timerReqIRCallback(const boost::system::error_code& err)
 {
-	cout << "Request" << endl;
 	ssp_push_ir_request(123);
 	startAsyncRead();
 	requestIRDataCycle(m_irReqPeriod);

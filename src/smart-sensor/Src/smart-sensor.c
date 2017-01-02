@@ -25,6 +25,7 @@ void smart_sensor_main_loop(void)
 		ir_task_tick();
 		//transiver_task_tick();
 		ssp_sensor_task_tick();
+		/*
 		if (ir_is_data_ready())
 		{
 			IR_Data_Buffer* data = ir_get_data();
@@ -33,6 +34,6 @@ void smart_sensor_main_loop(void)
 				printf("%x ", (unsigned int) data->buffer[i]);
 			}
 			printf("\n");
-		}
+		}*/
 	}
 }
