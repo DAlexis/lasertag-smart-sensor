@@ -20,7 +20,6 @@ public:
 	using ReadDoneCallback = std::function<void(const std::vector<uint8_t>& buffer)>;
 	using ReadByteDoneCallback = std::function<void(uint8_t)>;
     SerialPort(boost::asio::io_service& io, std::string port, unsigned int baud_rate);
-    void writeString(std::string s);
     void write(uint8_t* data, size_t size);
 
     //void asyncReadLine(char stopChar, ReadDoneCallback callback);
@@ -43,6 +42,7 @@ private:
     uint8_t m_nextChar = 0;
     uint8_t m_stopChar = 0;
     ReadDoneCallback m_rxCallback = nullptr;
+    size_t m_writtenBytes = 0;
 };
 
 

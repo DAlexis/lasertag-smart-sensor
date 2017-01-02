@@ -29,10 +29,16 @@ void SSPMaster::start()
 {
 	//m_serial.asyncReadPerByte([](uint8_t byte){ ssp_receive_byte(byte); });
 	setupTickTimer();
+	startAsyncRead();
+}
+
+void SSPMaster::startAsyncRead()
+{
+	//m_serial.asyncReadPerByte(ssp_receive_byte);
 
 	m_serial.asyncRead([this](
-			const std::vector<uint8_t>& buffer) {	messageCallback(buffer); },
-			10
+		const std::vector<uint8_t>& buffer) {	messageCallback(buffer); },
+		10
 	);
 }
 
@@ -50,10 +56,7 @@ void SSPMaster::messageCallback(const std::vector<uint8_t>& buffer)
 		}
 	}
 
-	m_serial.asyncRead([this](
-			const std::vector<uint8_t>& buffer) {	messageCallback(buffer); },
-			10
-	);
+	startAsyncRead();
 }
 
 void SSPMaster::doTick()
@@ -67,15 +70,6 @@ void SSPMaster::setupTickTimer()
 	m_timerTick.expires_from_now(boost::posix_time::milliseconds(10));
 	m_timerTick.async_wait([this](const boost::system::error_code& err){ doTick(); });
 }
-/*
-void SSPMaster::requestIRData()
-{
-	cout << "==========" << endl;
-	cout << "Requesting IR data" << endl;
-	cout << "==========" << endl;
-
-	sendCommand(SSP_M2S_GET_IR_BUFFER);
-}
 
 void SSPMaster::requestIRDataCycle(unsigned int ms)
 {
@@ -83,7 +77,7 @@ void SSPMaster::requestIRDataCycle(unsigned int ms)
 	m_timer.expires_from_now(boost::posix_time::milliseconds(ms));
 	m_timer.async_wait([this](const boost::system::error_code& err) { timerReqIRCallback(err); });
 }
-*/
+
 SerialPort& SSPMaster::serial()
 {
 	return m_serial;
@@ -153,12 +147,15 @@ void SSPMaster::parseSlaveToMaster(const std::vector<uint8_t>& buffer)
 		cout << ios::dec << endl;
 	}
 }
+*/
 
 void SSPMaster::timerReqIRCallback(const boost::system::error_code& err)
 {
-	requestIRData();
+	cout << "Request" << endl;
+	ssp_push_ir_request(123);
+	startAsyncRead();
 	requestIRDataCycle(m_irReqPeriod);
-}*/
+}
 
 ///////////////////////
 // C driver

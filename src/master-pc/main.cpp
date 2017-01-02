@@ -59,7 +59,7 @@ int main(int argc, char** argv)
     sspMaster.connectToCDriver();
     sspMaster.start();
 
-    //sspMaster.requestIRDataCycle(1000);
+    sspMaster.requestIRDataCycle(1000);
     MainLoop ml(io);
     ml.mainLoop();
 

@@ -9,14 +9,9 @@ SerialPort::SerialPort(boost::asio::io_service& io, std::string port, unsigned i
 	SignalHandler::instance().addStoppable(this);
 }
 
-
-void SerialPort::writeString(std::string s)
-{
-	boost::asio::write(m_serial,boost::asio::buffer(s.c_str(),s.size()));
-}
-
 void SerialPort::write(uint8_t* data, size_t size)
 {
+	m_writtenBytes = size;
 	boost::asio::write(m_serial,boost::asio::buffer(data, size));
 }
 
@@ -39,10 +34,10 @@ void SerialPort::asyncReadPerByte(ReadByteDoneCallback callback)
 				std::size_t bytes_transferred
 		)
 		{
-			cout << byte;
 			if (error == boost::asio::error::operation_aborted)
 				return;
 
+			cout << byte;
 			callback(byte);
 			asyncReadPerByte(callback);
 		}
@@ -64,6 +59,8 @@ void SerialPort::asyncReadNextByte(bool needTimeout)
 				std::size_t bytes_transferred
 		)
 		{
+			if (error == boost::asio::error::operation_aborted)
+				return;
 			byteReadedCallback(error, bytes_transferred);
 		}
 	);
@@ -78,7 +75,10 @@ void SerialPort::asyncReadNextByte(bool needTimeout)
 					return;
 
 				m_serial.cancel();
-				m_rxCallback(m_readBuffer);
+
+				std::vector<uint8_t> result(m_readBuffer.begin()+m_writtenBytes, m_readBuffer.end());
+				m_writtenBytes = 0;
+				m_rxCallback(result);
 			}
 		);
 	}

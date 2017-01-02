@@ -13,9 +13,11 @@
 #include <stdint.h>
 
 static uint8_t incoming = 0;
+static uint8_t sending_now = 0;
 
 static void receive_next_byte_it(void)
 {
+	HAL_HalfDuplex_EnableReceiver(&huart1);
 	HAL_UART_Receive_IT(&huart1, &incoming, 1);
 }
 
@@ -27,8 +29,11 @@ void ssp_drivers_init(void)
 
 void ssp_send_data(uint8_t* data, uint16_t size)
 {
-	HAL_UART_AbortReceive_IT(&huart1);
+	//HAL_UART_AbortReceive_IT(&huart1);
+	sending_now = 1;
+	HAL_HalfDuplex_EnableTransmitter(&huart1);
 	HAL_UART_Transmit(&huart1, data, size, HAL_MAX_DELAY);
+	sending_now = 0;
 	receive_next_byte_it();
 }
 
@@ -58,8 +63,11 @@ void write_to_uart(char *ptr, int len)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	UNUSED(huart);
-	ssp_receive_byte(incoming);
-	receive_next_byte_it();
+	if (sending_now == 0)
+	{
+		ssp_receive_byte(incoming);
+		receive_next_byte_it();
+	}
 }
 
 

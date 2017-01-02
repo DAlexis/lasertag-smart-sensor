@@ -85,8 +85,20 @@ int main(void)
   MX_TIM17_Init();
 
   /* USER CODE BEGIN 2 */
+
+  /*
+  HAL_Delay(100);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_1, GPIO_PIN_SET);
+  HAL_Delay(100);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_1, GPIO_PIN_RESET);
+  uint8_t tmp;
+  HAL_UART_Receive_IT(&huart1, &tmp, 1);
+  ssp_send_data((uint8_t*)"q", 1);
+*/
+
   smart_sensor_init();
   smart_sensor_main_loop();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -96,8 +108,12 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	  printf("Hello, world\n");
-	  HAL_Delay(100);
+	  //printf("Hello, world\n");
+	  //HAL_Delay(100);
+	  /*
+	  ssp_send_data((uint8_t*)"qwewe", 5);
+	  HAL_Delay(1000);
+	  */
   }
   /* USER CODE END 3 */
 

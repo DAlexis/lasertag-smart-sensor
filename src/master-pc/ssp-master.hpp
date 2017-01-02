@@ -19,9 +19,11 @@ public:
 	void connectToCDriver();
 	void start();
 	SerialPort& serial();
+	void requestIRDataCycle(unsigned int ms);
 
 	static SSPMaster* sspMasterActive;
 private:
+	void startAsyncRead();
 	void sendCommand(SSP_Command command);
 	void messageCallback(const std::vector<uint8_t>& buffer);
 	void parseSlaveToMaster(const std::vector<uint8_t>& buffer);
