@@ -12,11 +12,46 @@ using namespace std;
 
 SSPMaster* SSPMaster::sspMasterActive = nullptr;
 
+
+FunctionRepeater::FunctionRepeater(boost::asio::io_service& io) :
+		m_timer(io)
+{
+
+}
+
+void FunctionRepeater::run(Callback callback, unsigned int ms)
+{
+	m_callback = callback;
+	m_period = ms;
+	startTimer();
+}
+
+void FunctionRepeater::stop()
+{
+	m_timer.cancel();
+}
+
+void FunctionRepeater::startTimer()
+{
+	m_timer.expires_from_now(boost::posix_time::milliseconds(m_period));
+	m_timer.async_wait([this](const boost::system::error_code& err)
+		{
+			if (err != boost::asio::error::operation_aborted)
+			{
+				startTimer();
+				m_callback();
+			}
+		}
+	);
+}
+
+
 SSPMaster::SSPMaster(boost::asio::io_service& io, SerialPort& serial) :
 		m_serial(serial),
-		m_timer(io),
-		m_timerTick(io),
-		m_timerScanIR(io)
+		m_scanRepeater(io),
+		m_tickRepeater(io),
+		m_reqIRRepeater(io),
+		m_pushAnimTask(io)
 {
 
 }
@@ -29,8 +64,9 @@ void SSPMaster::connectToCDriver()
 void SSPMaster::start()
 {
 	//m_serial.asyncReadPerByte([](uint8_t byte){ ssp_receive_byte(byte); });
-	setupTickTimer();
-	setupScanIRTimer();
+	m_tickRepeater.run([this]{ doTick(); }, 10);
+	m_scanRepeater.run([this]{ doScanIR(); }, 10);
+	m_pushAnimTask.run([this]{ doPushAnimTasks(); }, 5000);
 	startAsyncRead();
 }
 
@@ -61,10 +97,15 @@ void SSPMaster::messageCallback(const std::vector<uint8_t>& buffer)
 	startAsyncRead();
 }
 
+void SSPMaster::doReqIR()
+{
+	ssp_push_ir_request(123);
+	startAsyncRead();
+}
+
 void SSPMaster::doTick()
 {
 	ssp_master_task_tick();
-	setupTickTimer();
 }
 
 void SSPMaster::doScanIR()
@@ -81,26 +122,52 @@ void SSPMaster::doScanIR()
 		}
 		cout << ios::dec << endl;
 	}
-	setupScanIRTimer();
 }
 
-void SSPMaster::setupTickTimer()
+void SSPMaster::doPushAnimTasks()
 {
-	m_timerTick.expires_from_now(boost::posix_time::milliseconds(10));
-	m_timerTick.async_wait([this](const boost::system::error_code& err){ doTick(); });
-}
+	cout << "Pushing tasks" << endl;
+	SSP_Sensor_Animation_Task task;
+	task.state.red = 0;
+	task.state.green = 0;
+	task.state.blue = 0;
+	task.state.vibro = 0;
+	task.ms_from_last_state = 500;
+	ssp_push_animation_task(123, &task);
 
-void SSPMaster::setupScanIRTimer()
-{
-	m_timerScanIR.expires_from_now(boost::posix_time::milliseconds(10));
-	m_timerScanIR.async_wait([this](const boost::system::error_code& err){ doScanIR(); });
+	task.state.red = 255;
+	task.state.green = 0;
+	task.state.blue = 0;
+	task.state.vibro = 0;
+	task.ms_from_last_state = 500;
+	ssp_push_animation_task(123, &task);
+
+	task.state.red = 0;
+	task.state.green = 255;
+	task.state.blue = 0;
+	task.state.vibro = 0;
+	task.ms_from_last_state = 500;
+	ssp_push_animation_task(123, &task);
+
+	task.state.red = 0;
+	task.state.green = 0;
+	task.state.blue = 255;
+	task.state.vibro = 0;
+	task.ms_from_last_state = 500;
+	ssp_push_animation_task(123, &task);
+
+	task.state.red = 0;
+	task.state.green = 0;
+	task.state.blue = 0;
+	task.state.vibro = 0;
+	task.ms_from_last_state = 500;
+	ssp_push_animation_task(123, &task);
 }
 
 void SSPMaster::requestIRDataCycle(unsigned int ms)
 {
 	m_irReqPeriod = ms;
-	m_timer.expires_from_now(boost::posix_time::milliseconds(ms));
-	m_timer.async_wait([this](const boost::system::error_code& err) { timerReqIRCallback(err); });
+	m_reqIRRepeater.run([this] { doReqIR(); } , ms);
 }
 
 SerialPort& SSPMaster::serial()
@@ -173,13 +240,6 @@ void SSPMaster::parseSlaveToMaster(const std::vector<uint8_t>& buffer)
 	}
 }
 */
-
-void SSPMaster::timerReqIRCallback(const boost::system::error_code& err)
-{
-	ssp_push_ir_request(123);
-	startAsyncRead();
-	requestIRDataCycle(m_irReqPeriod);
-}
 
 ///////////////////////
 // C driver
