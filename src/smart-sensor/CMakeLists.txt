@@ -2,11 +2,6 @@ cmake_minimum_required(VERSION 2.8)
 
 project(smart-sensor C ASM)
 
-
-list(REMOVE_ITEM C_SOURCES "${PROJECT_SOURCE_DIR}/lasertag-ssp/ssp/src/ssp-master-part.c")
-#list(REMOVE_ITEM C_SOURCES "${PROJECT_SOURCE_DIR}/lasertag-ssp/ssp/src/ssp-sensor-part.c")
-
-
 set(EXE_SOURCES
 	Drivers/newlib/newlib.c
 	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_cortex.c
