@@ -66,7 +66,7 @@ void SSPMaster::start()
 	//m_serial.asyncReadPerByte([](uint8_t byte){ ssp_receive_byte(byte); });
 	m_tickRepeater.run([this]{ doTick(); }, 10);
 	m_scanRepeater.run([this]{ doScanIR(); }, 10);
-	m_pushAnimTask.run([this]{ doPushAnimTasks(); }, 5000);
+	m_pushAnimTask.run([this]{ doPushAnimTasks(); }, 3000);
 	startAsyncRead();
 	//doRunDiscovery();
 }
@@ -85,11 +85,11 @@ void SSPMaster::messageCallback(const std::vector<uint8_t>& buffer)
 {
 	if (!buffer.empty())
 	{
-		string str(buffer.begin(), buffer.end());
+		/*
 		cout << "==========" << endl;
 		cout << "Bus message: " << arrayToHexStr(buffer.data(), buffer.size()) << endl;
 		cout << "==========" << endl;
-
+*/
 
 		for (auto it : buffer)
 		{
@@ -136,7 +136,10 @@ void SSPMaster::doScanIR()
 void SSPMaster::doPushAnimTasks()
 {
 	if (ssp_is_busy())
+	{
+		cout << "Im busy";
 		return;
+	}
 	cout << "Pushing tasks" << endl;
 
 	SSP_Sensor_Animation_Task task;
