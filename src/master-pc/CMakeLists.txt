@@ -13,11 +13,14 @@ set(EXE_SOURCES
     main-loop.cpp
 	../smart-sensor/lasertag-ssp/ssp/src/ssp-master-part.c
 	../smart-sensor/lasertag-ssp/ssp/src/ssp.c
+	../smart-sensor/lasertag-ssp/ssp/src/ssp-internal.c
 )
 
 include_directories(
     ../smart-sensor/lasertag-ssp/ssp/Inc
 )
+
+add_definitions(-DMASTER_DEBUG)
 
 add_executable(${PROJECT_NAME} ${EXE_SOURCES})
 

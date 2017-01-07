@@ -76,7 +76,7 @@ void SerialPort::asyncReadNextByte(bool needTimeout)
 
 				m_serial.cancel();
 
-				std::vector<uint8_t> result(m_readBuffer.begin()+m_writtenBytes, m_readBuffer.end());
+				std::vector<uint8_t> result(m_readBuffer.begin(), m_readBuffer.end());
 				m_writtenBytes = 0;
 				m_rxCallback(result);
 			}

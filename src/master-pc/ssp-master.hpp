@@ -11,6 +11,8 @@
 #include "serial-port.hpp"
 #include "../smart-sensor/lasertag-ssp/ssp/Inc/ssp.h"
 
+#include <string>
+
 class FunctionRepeater
 {
 public:
@@ -36,10 +38,12 @@ public:
 	void start();
 	SerialPort& serial();
 	void requestIRDataCycle(unsigned int ms);
+	void startAsyncRead();
 
 	static SSPMaster* sspMasterActive;
 private:
-	void startAsyncRead();
+	static std::string arrayToHexStr(const uint8_t* array, size_t size);
+
 	void sendCommand(SSP_Command command);
 	void messageCallback(const std::vector<uint8_t>& buffer);
 	void parseSlaveToMaster(const std::vector<uint8_t>& buffer);
@@ -47,6 +51,9 @@ private:
 	void doTick();
 	void doScanIR();
 	void doPushAnimTasks();
+	void doRunDiscovery();
+
+	void doPrintAddrsList();
 
 	SerialPort& m_serial;
 
@@ -54,6 +61,7 @@ private:
 	FunctionRepeater m_tickRepeater;
 	FunctionRepeater m_reqIRRepeater;
 	FunctionRepeater m_pushAnimTask;
+	FunctionRepeater m_printAddrList;
 
 	unsigned int m_irReqPeriod = 0; // ms
 

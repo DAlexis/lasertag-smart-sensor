@@ -5,7 +5,6 @@
 #include <boost/shared_array.hpp>
 
 #include <iostream>
-#include <iomanip>
 #include <string>
 
 using namespace std;
@@ -51,7 +50,8 @@ SSPMaster::SSPMaster(boost::asio::io_service& io, SerialPort& serial) :
 		m_scanRepeater(io),
 		m_tickRepeater(io),
 		m_reqIRRepeater(io),
-		m_pushAnimTask(io)
+		m_pushAnimTask(io),
+		m_printAddrList(io)
 {
 
 }
@@ -68,6 +68,7 @@ void SSPMaster::start()
 	m_scanRepeater.run([this]{ doScanIR(); }, 10);
 	m_pushAnimTask.run([this]{ doPushAnimTasks(); }, 5000);
 	startAsyncRead();
+	//doRunDiscovery();
 }
 
 void SSPMaster::startAsyncRead()
@@ -76,7 +77,7 @@ void SSPMaster::startAsyncRead()
 
 	m_serial.asyncRead([this](
 		const std::vector<uint8_t>& buffer) {	messageCallback(buffer); },
-		10
+		20
 	);
 }
 
@@ -86,8 +87,10 @@ void SSPMaster::messageCallback(const std::vector<uint8_t>& buffer)
 	{
 		string str(buffer.begin(), buffer.end());
 		cout << "==========" << endl;
-		cout << "Bus message: " << str << endl;
+		cout << "Bus message: " << arrayToHexStr(buffer.data(), buffer.size()) << endl;
 		cout << "==========" << endl;
+
+
 		for (auto it : buffer)
 		{
 			ssp_receive_byte(it);
@@ -99,8 +102,13 @@ void SSPMaster::messageCallback(const std::vector<uint8_t>& buffer)
 
 void SSPMaster::doReqIR()
 {
+	if (ssp_is_busy())
+	{
+		cout << "Busy" << endl;
+		return;
+	}
 	ssp_push_ir_request(123);
-	startAsyncRead();
+	//startAsyncRead();
 }
 
 void SSPMaster::doTick()
@@ -115,18 +123,22 @@ void SSPMaster::doScanIR()
 	{
 		cout << "IR buffer received" << endl;
 		cout << "Sender: " << ir->sensor_address << endl;
-		cout << "Data: " << ios::hex;
-		for (int i=0; i<ir->size; i++)
+		cout << "Bits: " << ir->buffer.bits_count << endl;
+		cout << "Data: ";
+		for (int i=0; i < SSP_IR_BUFFER_MAX_SIZE; i++)
 		{
-			cout << ir->data[i];
+			cout << (int) (ir->buffer.data[i]) << " ";
 		}
-		cout << ios::dec << endl;
+		cout << endl;
 	}
 }
 
 void SSPMaster::doPushAnimTasks()
 {
+	if (ssp_is_busy())
+		return;
 	cout << "Pushing tasks" << endl;
+
 	SSP_Sensor_Animation_Task task;
 	task.state.red = 0;
 	task.state.green = 0;
@@ -164,6 +176,24 @@ void SSPMaster::doPushAnimTasks()
 	ssp_push_animation_task(123, &task);
 }
 
+void SSPMaster::doRunDiscovery()
+{
+	if (ssp_is_busy())
+		return;
+	cout << "Running address discovering..." << endl;
+	ssp_start_address_discovering();
+	//startAsyncRead();
+}
+
+void SSPMaster::doPrintAddrsList()
+{
+	cout << "Address list size: " << ssp_registered_addrs.size << endl;
+	for (int i=0; i<ssp_registered_addrs.size; i++)
+	{
+		cout << "Known: " << ssp_registered_addrs.address[i] << endl;
+	}
+}
+
 void SSPMaster::requestIRDataCycle(unsigned int ms)
 {
 	m_irReqPeriod = ms;
@@ -174,72 +204,17 @@ SerialPort& SSPMaster::serial()
 {
 	return m_serial;
 }
-/*
-void SSPMaster::sendCommand(Sensor_Command command)
+
+std::string SSPMaster::arrayToHexStr(const uint8_t* array, size_t size)
 {
-	SSP_M2S_Header package;
-	package.start_byte = SSP_START_BYTE_M2S;
-	package.target = 123;
-	package.command = command;
-
-	m_serial.write(reinterpret_cast<uint8_t*> (&package), sizeof(package));
+	std::stringstream ss;
+	ss << std::hex << std::setfill('0');
+	for (int i = 0; i < size; ++i)
+	{
+		ss << std::setw(2) << static_cast<unsigned>(array[i]) << " ";
+	}
+	return ss.str();
 }
-
-void SSPMaster::messageCallback(const std::vector<uint8_t>& buffer)
-{
-	if (!buffer.empty())
-	{
-		string str(buffer.begin(), buffer.end());
-		cout << "==========" << endl;
-		cout << "Bus message: " << str << endl;
-		switch (buffer[0])
-		{
-		case SSP_START_BYTE_M2S:
-			cout << "Message type: master to slave" << endl;
-			break;
-		case SSP_START_BYTE_DEBUG:
-			cout << "Message type: debug" << endl;
-			break;
-		case SSP_START_BYTE_S2M:
-			cout << "Message type: slave to master" << endl;
-			parseSlaveToMaster(buffer);
-			break;
-		}
-		cout << "==========" << endl;
-	}
-
-	startAsyncReading();
-}
-
-void SSPMaster::parseSlaveToMaster(const std::vector<uint8_t>& buffer)
-{
-	SSP_S2M_Header *header;
-	if (buffer.size() < sizeof(*header))
-	{
-		cout << "Error: buffer.size() < size of msg header" << endl;
-		return;
-	}
-
-	cout << "Package size: " << header->package_size << endl;
-	if (buffer.size() < sizeof(*header) + header->package_size)
-	{
-		cout << "Error: buffer.size() < sizeof(*header) + header->package_size + sizeof(SSP_Footer)" << endl;
-		return;
-	}
-
-	if (header->package_type == SSP_S2M_PACKAGE_TYPE_IR_DATA)
-	{
-		cout << "Type: IR data" << endl;
-		const uint8_t *data = buffer.data() + sizeof(header);
-		cout << "Data: " << ios::hex;
-		for (int i = 0; i<header->package_size; i++)
-		{
-			cout << data[i] << " " << endl;
-		}
-		cout << ios::dec << endl;
-	}
-}
-*/
 
 ///////////////////////
 // C driver
@@ -250,9 +225,9 @@ void ssp_drivers_init(void)
 
 uint32_t ssp_get_time_ms()
 {
-	static boost::posix_time::ptime startTime = boost::posix_time::second_clock::local_time();
+	static boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
 
-	boost::posix_time::ptime nowTime = boost::posix_time::second_clock::local_time();
+	boost::posix_time::ptime nowTime = boost::posix_time::microsec_clock::local_time();
 	boost::posix_time::time_duration diff = nowTime - startTime;
 	return diff.total_milliseconds();
 }
@@ -262,6 +237,7 @@ void ssp_send_data(uint8_t* data, uint16_t size)
 {
 	SSPMaster::sspMasterActive->serial().stop();
 	SSPMaster::sspMasterActive->serial().write(data, size);
+	SSPMaster::sspMasterActive->startAsyncRead();
 }
 
 uint8_t ssp_is_ir_data_ready(void) { return 0; }

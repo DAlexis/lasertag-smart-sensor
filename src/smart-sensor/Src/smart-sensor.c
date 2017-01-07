@@ -22,7 +22,6 @@ void smart_sensor_init(void)
 void smart_sensor_main_loop(void)
 {
 	printf("main loop\n");
-	uint16_t v = 0;
 	for (;;)
 	{
 		ir_task_tick();

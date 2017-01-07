@@ -2,22 +2,102 @@ cmake_minimum_required(VERSION 2.8)
 
 project(smart-sensor C ASM)
 
-FILE(GLOB_RECURSE ASM_SOURCES *.s)
-FILE(GLOB_RECURSE C_SOURCES *.c)
-FILE(GLOB_RECURSE CPP_SOURCES *.cpp)
-FILE(GLOB_RECURSE H_HEADERS *.h)
-FILE(GLOB_RECURSE HPP_HEADERS *.hpp)
 
 list(REMOVE_ITEM C_SOURCES "${PROJECT_SOURCE_DIR}/lasertag-ssp/ssp/src/ssp-master-part.c")
 #list(REMOVE_ITEM C_SOURCES "${PROJECT_SOURCE_DIR}/lasertag-ssp/ssp/src/ssp-sensor-part.c")
 
 
 set(EXE_SOURCES
-    ${ASM_SOURCES}
-    ${C_SOURCES}
-    ${CPP_SOURCES}
-    ${H_HEADERS}
-    ${HPP_HEADERS}
+	Drivers/newlib/newlib.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_cortex.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c_ex.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim_ex.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_flash_ex.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_flash.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_uart.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pwr.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_uart_ex.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_dma.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc_ex.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pwr_ex.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal.c
+	Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_gpio.c
+	Src/rgb.c
+	Src/system_stm32f0xx.c
+	Src/ssp-driver.c
+	Src/smart-sensor.c
+	Src/gpio.c
+	Src/tim.c
+	Src/ir-receiver.c
+	Src/main.c
+	Src/stm32f0xx_hal_msp.c
+	Src/usart.c
+	Src/stm32f0xx_it.c
+	lasertag-ssp/ssp/src/ssp-internal.c
+	lasertag-ssp/ssp/src/ssp.c
+	lasertag-ssp/ssp/src/ssp-sensor-part.c
+	lasertag-ssp/ssp/src/ssp-master-part.c
+		
+    Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c_ex.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_gpio.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_tim_ex.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_uart_ex.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_rcc_ex.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_def.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_gpio_ex.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_uart.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_flash_ex.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_pwr_ex.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_dma.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_tim.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_pwr.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_flash.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_dma_ex.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_rcc.h
+	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_cortex.h
+	Drivers/CMSIS/Include/core_cm0plus.h
+	Drivers/CMSIS/Include/core_cmInstr.h
+	Drivers/CMSIS/Include/core_sc300.h
+	Drivers/CMSIS/Include/arm_math.h
+	Drivers/CMSIS/Include/arm_common_tables.h
+	Drivers/CMSIS/Include/cmsis_armcc.h
+	Drivers/CMSIS/Include/core_cm7.h
+	Drivers/CMSIS/Include/cmsis_armcc_V6.h
+	Drivers/CMSIS/Include/core_cmSimd.h
+	Drivers/CMSIS/Include/core_cmFunc.h
+	Drivers/CMSIS/Include/arm_const_structs.h
+	Drivers/CMSIS/Include/core_sc000.h
+	Drivers/CMSIS/Include/core_cm0.h
+	Drivers/CMSIS/Include/core_cm3.h
+	Drivers/CMSIS/Include/cmsis_gcc.h
+	Drivers/CMSIS/Include/core_cm4.h
+	Drivers/CMSIS/Device/ST/STM32F0xx/Include/system_stm32f0xx.h
+	Drivers/CMSIS/Device/ST/STM32F0xx/Include/stm32f030x6.h
+	Drivers/CMSIS/Device/ST/STM32F0xx/Include/stm32f0xx.h
+	Inc/main.h
+	Inc/tim.h
+	Inc/gpio.h
+	Inc/usart.h
+	Inc/stm32f0xx_hal_conf.h
+	Inc/smart-sensor.h
+	Inc/stm32f0xx_it.h
+	Inc/ir-receiver.h
+	Inc/rgb.h
+	Inc/ir-timings.h
+	lasertag-ssp/ssp/Inc/ssp-sensor-part.h
+	lasertag-ssp/ssp/Inc/ssp-master-part.h
+	lasertag-ssp/ssp/Inc/ssp.h
+	lasertag-ssp/ssp/Inc/ssp-driver.h
+	lasertag-ssp/ssp/Inc/ssp-internal.h
+	lasertag-ssp/ssp/Inc/ssp-config.h
+
+    Drivers/CMSIS/Device/ST/STM32F0xx/Source/Templates/gcc/startup_stm32f030x6.s
 )
 
 include_directories(
