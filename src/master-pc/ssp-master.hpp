@@ -21,11 +21,13 @@ public:
 
 	void run(Callback callback, unsigned int ms);
 	void stop();
+	void setNextPeriod(unsigned int ms);
 private:
 	void startTimer();
 
 	boost::asio::deadline_timer m_timer;
 	unsigned int m_period = 0;
+	unsigned int m_nextPeriod = 0;
 	Callback m_callback = nullptr;
 };
 

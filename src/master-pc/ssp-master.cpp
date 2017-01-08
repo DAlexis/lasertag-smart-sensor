@@ -22,6 +22,7 @@ void FunctionRepeater::run(Callback callback, unsigned int ms)
 {
 	m_callback = callback;
 	m_period = ms;
+	m_nextPeriod = m_period;
 	startTimer();
 }
 
@@ -30,15 +31,21 @@ void FunctionRepeater::stop()
 	m_timer.cancel();
 }
 
+void FunctionRepeater::setNextPeriod(unsigned int ms)
+{
+	m_nextPeriod = ms;
+}
+
 void FunctionRepeater::startTimer()
 {
-	m_timer.expires_from_now(boost::posix_time::milliseconds(m_period));
+	m_timer.expires_from_now(boost::posix_time::milliseconds(m_nextPeriod));
 	m_timer.async_wait([this](const boost::system::error_code& err)
 		{
 			if (err != boost::asio::error::operation_aborted)
 			{
-				startTimer();
+				m_nextPeriod = m_period;
 				m_callback();
+				startTimer();
 			}
 		}
 	);
@@ -67,8 +74,9 @@ void SSPMaster::start()
 	m_tickRepeater.run([this]{ doTick(); }, 10);
 	m_scanRepeater.run([this]{ doScanIR(); }, 10);
 	m_pushAnimTask.run([this]{ doPushAnimTasks(); }, 3000);
+	m_printAddrList.run([this]{ doPrintAddrsList(); }, 300);
 	startAsyncRead();
-	//doRunDiscovery();
+	doRunDiscovery();
 }
 
 void SSPMaster::startAsyncRead()
@@ -85,7 +93,7 @@ void SSPMaster::messageCallback(const std::vector<uint8_t>& buffer)
 {
 	if (!buffer.empty())
 	{
-		/*
+/*
 		cout << "==========" << endl;
 		cout << "Bus message: " << arrayToHexStr(buffer.data(), buffer.size()) << endl;
 		cout << "==========" << endl;
@@ -102,6 +110,9 @@ void SSPMaster::messageCallback(const std::vector<uint8_t>& buffer)
 
 void SSPMaster::doReqIR()
 {
+	if (ssp_is_address_discovering_now())
+		return;
+
 	if (ssp_is_busy())
 	{
 		cout << "Busy" << endl;
@@ -190,6 +201,10 @@ void SSPMaster::doRunDiscovery()
 
 void SSPMaster::doPrintAddrsList()
 {
+	static size_t oldSize = 0;
+	if (ssp_registered_addrs.size == oldSize)
+		return;
+	oldSize = ssp_registered_addrs.size;
 	cout << "Address list size: " << ssp_registered_addrs.size << endl;
 	for (int i=0; i<ssp_registered_addrs.size; i++)
 	{
