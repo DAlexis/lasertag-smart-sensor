@@ -8,7 +8,7 @@
 #include "smart-sensor.h"
 #include "ir-receiver.h"
 #include "stm32f0xx_hal.h"
-#include "ssp-sensor-part.h"
+#include "ssp-slave.h"
 #include "rgb.h"
 
 #include <math.h>
@@ -22,22 +22,14 @@ void smart_sensor_init(void)
 void smart_sensor_main_loop(void)
 {
 	printf("main loop\n");
+	uint8_t r, g, b, v;
 	for (;;)
 	{
 		ir_task_tick();
 		//transiver_task_tick();
 		ssp_sensor_task_tick();
-		set_rgb_intensity(sensor_state.red, sensor_state.green, sensor_state.blue);
-		set_vibro(sensor_state.vibro);
-		/*
-		if (ir_is_data_ready())
-		{
-			IR_Data_Buffer* data = ir_get_data();
-			for (int i=0; i<ceil(data->size / 8); i++)
-			{
-				printf("%x ", (unsigned int) data->buffer[i]);
-			}
-			printf("\n");
-		}*/
+		ssp_get_leds_vibro_state(&r, &g, &b, &v);
+		set_rgb_intensity(r, g, b);
+		set_vibro(v);
 	}
 }

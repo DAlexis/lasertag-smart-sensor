@@ -31,10 +31,9 @@ set(EXE_SOURCES
 	Src/stm32f0xx_hal_msp.c
 	Src/usart.c
 	Src/stm32f0xx_it.c
-	lasertag-ssp/ssp/src/ssp-internal.c
-	lasertag-ssp/ssp/src/ssp.c
-	lasertag-ssp/ssp/src/ssp-sensor-part.c
-	lasertag-ssp/ssp/src/ssp-master-part.c
+	lasertag-ssp/ssp/src/ssp-utils.c
+	lasertag-ssp/ssp/src/ssp-slave.c
+	lasertag-ssp/ssp/src/ssp-master.c
 		
     Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c_ex.h
 	Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c.h
@@ -85,12 +84,7 @@ set(EXE_SOURCES
 	Inc/ir-receiver.h
 	Inc/rgb.h
 	Inc/ir-timings.h
-	lasertag-ssp/ssp/Inc/ssp-sensor-part.h
-	lasertag-ssp/ssp/Inc/ssp-master-part.h
-	lasertag-ssp/ssp/Inc/ssp.h
-	lasertag-ssp/ssp/Inc/ssp-driver.h
-	lasertag-ssp/ssp/Inc/ssp-internal.h
-	lasertag-ssp/ssp/Inc/ssp-config.h
+	
 
     Drivers/CMSIS/Device/ST/STM32F0xx/Source/Templates/gcc/startup_stm32f030x6.s
 )
@@ -100,6 +94,7 @@ include_directories(
     Drivers/CMSIS/Device/ST/STM32F0xx/Include
     Drivers/STM32F0xx_HAL_Driver/Inc
     Inc
+    lasertag-ssp/ssp
     lasertag-ssp/ssp/Inc
 )
 

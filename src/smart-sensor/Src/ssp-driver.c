@@ -8,8 +8,6 @@
 #include "ssp-driver.h"
 #include "usart.h"
 #include "ir-receiver.h"
-#include "ssp-sensor-part.h"
-
 #include <stdint.h>
 
 static uint8_t incoming = 0;
@@ -52,13 +50,6 @@ void ssp_get_ir_data(uint8_t** data, uint16_t* size)
 uint32_t ssp_get_time_ms()
 {
 	return HAL_GetTick();
-}
-
-void write_to_uart(char *ptr, int len)
-{
-#ifdef DEBUG
-	ssp_send_debug_msg(ptr, len);
-#endif
 }
 
 // Interrupt callbacks

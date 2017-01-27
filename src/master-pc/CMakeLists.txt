@@ -11,12 +11,12 @@ set(EXE_SOURCES
     ssp-master.cpp
     signal-handler.cpp
     main-loop.cpp
-	../smart-sensor/lasertag-ssp/ssp/src/ssp-master-part.c
-	../smart-sensor/lasertag-ssp/ssp/src/ssp.c
-	../smart-sensor/lasertag-ssp/ssp/src/ssp-internal.c
+	../smart-sensor/lasertag-ssp/ssp/src/ssp-master.c
+	../smart-sensor/lasertag-ssp/ssp/src/ssp-utils.c
 )
 
 include_directories(
+    ../smart-sensor/lasertag-ssp/ssp
     ../smart-sensor/lasertag-ssp/ssp/Inc
 )
 

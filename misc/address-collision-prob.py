@@ -14,7 +14,7 @@ def address_collision_prob(maxaddr, n):
     return 1.0 - non_coll_prob
 
 def answer_of_only_one_prob(count, answer_prob):
-    return count*answer_prob*(1-answer_prob)**(count-1)
+    return count*answer_prob*(1-answer_prob)**(count-1), (1-answer_prob)**count
 
 devices = 10
 addr_bits = list(range(4, 24+1))

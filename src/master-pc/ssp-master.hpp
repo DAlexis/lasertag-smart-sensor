@@ -8,9 +8,9 @@
 #ifndef MASTER_PC_SSP_MASTER_HPP_
 #define MASTER_PC_SSP_MASTER_HPP_
 
-#include "serial-port.hpp"
-#include "../smart-sensor/lasertag-ssp/ssp/Inc/ssp.h"
+#include <ssp-protocol.h>
 
+#include "serial-port.hpp"
 #include <string>
 
 class FunctionRepeater

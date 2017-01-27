@@ -1,6 +1,7 @@
 #include "ssp-master.hpp"
+#include "ssp-master.h"
+#include "ssp-master-driver.h"
 #include "../smart-sensor/lasertag-ssp/ssp/Inc/ssp-driver.h"
-#include "../smart-sensor/lasertag-ssp/ssp/Inc/ssp-master-part.h"
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/shared_array.hpp>
 
@@ -129,7 +130,7 @@ void SSPMaster::doTick()
 
 void SSPMaster::doScanIR()
 {
-	SSP_IR_Buffer* ir = ssp_get_next_ir_buffer();
+	SSP_IR_Message* ir = ssp_get_next_ir_buffer();
 	if (ir != nullptr)
 	{
 		cout << "IR buffer received" << endl;
