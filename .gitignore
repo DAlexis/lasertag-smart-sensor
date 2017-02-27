@@ -1,4 +1,9 @@
 eclipse-workspace
+build
+.metadata
+*.bak
+*.kicad_pcb-bak
+
 # Object files
 *.o
 *.ko
