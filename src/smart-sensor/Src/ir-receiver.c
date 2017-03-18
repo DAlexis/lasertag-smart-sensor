@@ -84,11 +84,12 @@ void reset_receiver(void)
 void add_bit(uint8_t bit)
 {
 	uint8_t bit_mask = 1 << (7 - temporary_buffer.size%8);
+	uint8_t offset = temporary_buffer.size / 8;
 
 	if (bit)
-		temporary_buffer.buffer[temporary_buffer.size/8] |= bit_mask;
+		temporary_buffer.buffer[offset] |= bit_mask;
 	else
-		temporary_buffer.buffer[temporary_buffer.size/8] &= ~bit_mask;
+		temporary_buffer.buffer[offset] &= ~bit_mask;
 
 	temporary_buffer.size++;
 }
