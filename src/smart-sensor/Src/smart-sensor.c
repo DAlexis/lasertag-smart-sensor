@@ -21,7 +21,7 @@ void smart_sensor_init(void)
 
 void smart_sensor_main_loop(void)
 {
-	printf("main loop\n");
+	//printf("main loop\n");
 	uint8_t r, g, b, v;
 	for (;;)
 	{

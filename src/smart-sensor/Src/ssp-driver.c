@@ -21,7 +21,7 @@ static void receive_next_byte_it(void)
 
 void ssp_drivers_init(void)
 {
-	MX_USART1_UART_Init();
+	MX_USART1_UART_Init_With_Speed(SSP_UART_SPEED);
 	receive_next_byte_it();
 	ir_receiver_init();
 }

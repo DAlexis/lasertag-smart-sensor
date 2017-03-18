@@ -58,6 +58,8 @@ void MX_USART1_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
+void MX_USART1_UART_Init_With_Speed(uint32_t speed);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
