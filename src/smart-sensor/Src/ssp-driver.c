@@ -8,6 +8,8 @@
 #include "ssp-slave-driver.h"
 #include "usart.h"
 #include "ir-receiver.h"
+#include "precision-clock.h"
+
 #include <stdint.h>
 
 static uint8_t incoming = 0;
@@ -47,8 +49,9 @@ void ssp_get_ir_data(uint8_t** data, uint16_t* size)
 	*size = ir_get_data()->size;
 }
 
-uint32_t ssp_get_time_ms()
+uint32_t ssp_get_ticks()
 {
+	//return prec_clock_ticks();
 	return HAL_GetTick();
 }
 

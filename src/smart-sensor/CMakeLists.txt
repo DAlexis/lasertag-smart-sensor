@@ -31,6 +31,7 @@ set(EXE_SOURCES
 	Src/stm32f0xx_hal_msp.c
 	Src/usart.c
 	Src/stm32f0xx_it.c
+	Src/precision-clock.c
 	lasertag-ssp/ssp/src/ssp-utils.c
 	lasertag-ssp/ssp/src/ssp-slave.c
 	lasertag-ssp/ssp/src/ssp-master.c
@@ -84,7 +85,7 @@ set(EXE_SOURCES
 	Inc/ir-receiver.h
 	Inc/rgb.h
 	Inc/ir-timings.h
-	
+	Inc/precision-clock.h
 
     Drivers/CMSIS/Device/ST/STM32F0xx/Source/Templates/gcc/startup_stm32f030x6.s
 )

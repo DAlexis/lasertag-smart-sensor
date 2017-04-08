@@ -67,6 +67,16 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
 
+  /*
+   * MCU resource map:
+   * Timers:
+   *  - TIM1: IR output (not implemented)
+   *  - TIM3: PWM for RGB LEDs
+   *  - TIM14: IR input decode
+   *  - TIM16: Unused
+   *  - TIM17: Unused
+   */
+
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -80,11 +90,21 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_TIM1_Init();
-  //MX_USART1_UART_Init();
   MX_TIM3_Init();
   MX_TIM17_Init();
 
   /* USER CODE BEGIN 2 */
+  prec_clock_init();
+/*
+  volatile uint32_t t = prec_clock_ticks();
+  for (;;)
+  {
+	  if (prec_clock_ticks() - t > 10000)
+	  {
+		  t = prec_clock_ticks();
+		  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
+	  }
+  }*/
 
   /*
   HAL_Delay(100);

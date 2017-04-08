@@ -242,7 +242,7 @@ void ssp_drivers_init(void)
 
 }
 
-uint32_t ssp_get_time_ms()
+uint32_t ssp_get_ticks()
 {
 	static boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
 

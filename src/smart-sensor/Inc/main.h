@@ -42,6 +42,22 @@
 /* Private define ------------------------------------------------------------*/
 #define TIM3_PWM_PERIOD 256
 
+#define Tagger_sound_Pin GPIO_PIN_0
+#define Tagger_sound_GPIO_Port GPIOA
+#define Bus_Pin GPIO_PIN_2
+#define Bus_GPIO_Port GPIOA
+#define IR_IN_Pin GPIO_PIN_4
+#define IR_IN_GPIO_Port GPIOA
+#define Vibro_Pin GPIO_PIN_5
+#define Vibro_GPIO_Port GPIOA
+#define Red_Pin GPIO_PIN_6
+#define Red_GPIO_Port GPIOA
+#define Green_Pin GPIO_PIN_7
+#define Green_GPIO_Port GPIOA
+#define Blue_Pin GPIO_PIN_1
+#define Blue_GPIO_Port GPIOB
+#define IR_out_Pin GPIO_PIN_9
+#define IR_out_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
