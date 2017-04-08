@@ -5,7 +5,7 @@
  *      Author: dalexies
  */
 
-#include "ssp-driver.h"
+#include "ssp-slave-driver.h"
 #include "usart.h"
 #include "ir-receiver.h"
 #include <stdint.h>
@@ -50,6 +50,11 @@ void ssp_get_ir_data(uint8_t** data, uint16_t* size)
 uint32_t ssp_get_time_ms()
 {
 	return HAL_GetTick();
+}
+
+SSP_Address ssp_self_address()
+{
+	return (DBGMCU->IDCODE) & 0xFFFF;
 }
 
 // Interrupt callbacks
