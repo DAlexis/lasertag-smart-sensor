@@ -24,9 +24,9 @@ void init_rgb()
 
 void set_rgb_intensity(uint8_t r, uint8_t g, uint8_t b)
 {
-	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, TIM3_PWM_PERIOD - r + 1);
-	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, TIM3_PWM_PERIOD - g + 1);
-	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, TIM3_PWM_PERIOD - b + 1);
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, r);
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, g);
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, b);
 }
 
 void set_vibro(uint8_t v)

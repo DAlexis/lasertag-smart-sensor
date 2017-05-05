@@ -12,6 +12,8 @@
 
 #include <stdint.h>
 
+#define CHIP_UID ((uint32_t *)UID_BASE)
+
 static uint8_t incoming = 0;
 static uint8_t sending_now = 0;
 
@@ -57,7 +59,9 @@ uint32_t ssp_get_ticks()
 
 SSP_Address ssp_self_address()
 {
-	return (DBGMCU->IDCODE) & 0xFFFF;
+	return 0xFFFF & ((CHIP_UID[0] >> 16) ^ CHIP_UID[0]
+			^ (CHIP_UID[1] >> 16) ^ CHIP_UID[1]
+			^ (CHIP_UID[2] >> 16) ^ CHIP_UID[2]);
 }
 
 // Interrupt callbacks
